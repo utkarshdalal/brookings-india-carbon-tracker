@@ -4,40 +4,7 @@
    </head>
    <body>
 
-      <style>
-         #loading {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(192, 192, 192, 0.3);
-            background-image: url("Rolling-1s-200px.gif");
-            background-repeat: no-repeat;
-            background-position: center;
-         }
-         [v-cloak] {
-            display: none;
-         }
-         button,
-         input,
-         select,
-         .time_input {
-            font-family: 'Franklin Gothic Book';
-            font-size: 15px;
-         }
-         #summary {
-            font-family: 'PT Serif';
-            padding-left: 30px;
-         }
-         #sources {
-            font-family: 'PT Serif';
-            font-size: 13px;
-            padding-left: 30px;
-         }
-      </style>
+      <link href="style.css" rel="stylesheet" type="text/css">
 
       <div id="time_input" class="time_input" align="center">
          <select v-model="selected_date_type">
@@ -59,6 +26,9 @@
            <option disabled value="">Select data type</option>
            <option>Corrected</option>
            <option>Raw</option>
+           <option>Daily Moving Averages</option>
+           <option>Weekly Moving Averages</option>
+           <option>Monthly Moving Averages</option>
          </select>
 
          <button v-on:click="submit">Submit</button>
@@ -98,6 +68,8 @@
       <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
       <script src="https://cdn.plot.ly/plotly-1.45.3.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/vuejs-datepicker@1.5.4/dist/vuejs-datepicker.min.js"></script>
+      <script src="plot_merit_data.js"></script>
+      <script src="plot_moving_averages.js"></script>
 
       <script>
 
@@ -189,40 +161,62 @@
                   toDate = new Date(this.end_date.getTime());
                   fromDate = new Date(this.start_date.getTime());
                }
-               toDateString = dateToString(toDate)
-               fromDateString = dateToString(fromDate)
-               if(this.validate_input(fromDateString, toDateString)){
-                  getData(fromDateString, toDateString, this.selected_value_type).then(response => {
-                  data = JSON.parse(response.data)
-                  timeRange.start_time = this.start_time
-                  timeRange.end_time = this.end_time
-                  minCo2Vue.min_co2 = (data.min_co2_per_kwh).toFixed(2)
-                  minCo2Vue.min_co2_time = data.min_co2_per_kwh_time
-                  maxCo2Vue.max_co2 = (data.max_co2_per_kwh).toFixed(2)
-                  maxCo2Vue.max_co2_time = data.max_co2_per_kwh_time
-                  totalCo2Vue.total_co2 = (data.total_tons_co2).toFixed(2)
-                  timestamps = data.timeseries_values.timestamps
-                  thermal = data.timeseries_values.thermal_generation
-                  gas = data.timeseries_values.gas_generation
-                  hydro = data.timeseries_values.hydro_generation
-                  renewable = data.timeseries_values.renewable_generation
-                  nuclear = data.timeseries_values.nuclear_generation
-                  net_demand = data.timeseries_values.net_demand
-                  total = data.timeseries_values.total_generation
-                  demand_met = data.timeseries_values.demand_met
-                  co2 = data.timeseries_values.tons_co2
-                  co2_per_mwh = data.timeseries_values.g_co2_per_kwh
+               if(this.validate_input(fromDate, toDate)){
+                  // Note that the stats are not included here! For example max CO2, min kgC02 etc
+                  response_data = {}
+                  batchGetData(fromDate, toDate, this.selected_value_type).then(response => {
+                     response_data = JSON.parse(response[0].data)
+                     for(i=1; i < response.length; i++){
+                        block = JSON.parse(response[i].data)
+                        keys = Object.keys(block.timeseries_values)
+                        for(j=0; j < keys.length; j++){
+                           key = keys[j]
+                           response_data.timeseries_values[key] = response_data.timeseries_values[key].concat(block.timeseries_values[key])
+                        }
+                     }
+                     data = response_data
+                     timestamps = data.timeseries_values.timestamps
+                     thermal = data.timeseries_values.thermal_generation
+                     gas = data.timeseries_values.gas_generation
+                     hydro = data.timeseries_values.hydro_generation
+                     renewable = data.timeseries_values.renewable_generation
+                     nuclear = data.timeseries_values.nuclear_generation
+                     demand_met = data.timeseries_values.demand_met
 
-                  peak_timestamps = data.peak_timestamps
-                  peak_values = data.peak_values
-                  trough_timestamps = data.trough_timestamps
-                  trough_values = data.trough_values
-                  morning_peak_timestamps = data.morning_peak_timestamps
-                  morning_peak_values = data.morning_peak_values
-                  evening_peak_timestamps = data.evening_peak_timestamps
-                  evening_peak_values = data.evening_peak_values
+                     if(this.is_moving_averages()){
+                        timestamps_ma = data.timeseries_values.ma_timestamps
+                        thermal_ma = data.timeseries_values.thermal_generation_ma
+                        gas_ma = data.timeseries_values.gas_generation_ma
+                        hydro_ma = data.timeseries_values.hydro_generation_ma
+                        renewable_ma = data.timeseries_values.renewable_generation_ma
+                        nuclear_ma = data.timeseries_values.nuclear_generation_ma
+                        demand_met_ma = data.timeseries_values.demand_met_ma
+                        plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma, thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma)
+                     }
+                     else{
+                        timeRange.start_time = this.start_time
+                        timeRange.end_time = this.end_time
+                        minCo2Vue.min_co2 = (data.min_co2_per_kwh).toFixed(2)
+                        minCo2Vue.min_co2_time = data.min_co2_per_kwh_time
+                        maxCo2Vue.max_co2 = (data.max_co2_per_kwh).toFixed(2)
+                        maxCo2Vue.max_co2_time = data.max_co2_per_kwh_time
+                        totalCo2Vue.total_co2 = (data.total_tons_co2).toFixed(2)
+                        total = data.timeseries_values.total_generation
+                        net_demand = data.timeseries_values.net_demand
+                        co2 = data.timeseries_values.tons_co2
+                        co2_per_mwh = data.timeseries_values.g_co2_per_kwh
 
-                  plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
+                        peak_timestamps = data.peak_timestamps
+                        peak_values = data.peak_values
+                        trough_timestamps = data.trough_timestamps
+                        trough_values = data.trough_values
+                        morning_peak_timestamps = data.morning_peak_timestamps
+                        morning_peak_values = data.morning_peak_values
+                        evening_peak_timestamps = data.evening_peak_timestamps
+                        evening_peak_values = data.evening_peak_values
+
+                        plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
+                     }
                   });
                }
                else{
@@ -231,15 +225,16 @@
                }
              },
              validate_input: function (start_time, end_time) {
-               regex = new RegExp(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
-               if(regex.test(start_time) && regex.test(end_time)) {
-                  start_dt = new Date(start_time)
-                  end_dt = new Date(end_time)
-                  if(start_dt >= new Date('0000-01-01') && end_dt <= new Date('9999-01-01') && start_dt < end_dt){
-                     return true
-                  }
+               if(start_time < end_time){
+                  return true
                }
                return false
+             },
+             is_moving_averages: function() {
+               if(this.selected_value_type == 'Daily Moving Averages' || this.selected_value_type == 'Monthly Moving Averages' || this.selected_value_type == 'Weekly Moving Averages'){
+                  return true;
+               }
+               return false;
              }
            },
            mounted () {
@@ -247,336 +242,36 @@
            }
          })
 
-         function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total_generation, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values) {
-            var plotDiv = document.getElementById('plot');
-            thermal_trace = {
-               name:'Thermal Generation',
-               x:timestamps,
-               y:thermal,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines',
-               yaxis: 'y1',
-               line: {width:0.5,
-                        color:'black'},
-               stackgroup:'one'
-            };
-            hydro_trace = {
-               name:'Hydro Generation',
-               x:timestamps,
-               y:hydro,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines',
-               yaxis: 'y1',
-               line: {width:0.5,
-                        color:'cyan'},
-               stackgroup:'one'
-            };
-            gas_trace = {
-               name:'Gas Generation',
-               x:timestamps,
-               y:gas,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines',
-               yaxis: 'y1',
-               line: {width:0.5,
-                        color:'blue'},
-               stackgroup:'one'
-            };
-            nuclear_trace = {
-               name:'Nuclear Generation',
-               x:timestamps,
-               y:nuclear,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines',
-               yaxis: 'y1',
-               line: {width:0.5,
-                        color:'red'},
-               stackgroup:'one'
-            };
-            renewable_trace = {
-               name:'Renewable Generation',
-               x:timestamps,
-               y:renewable,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines',
-               yaxis: 'y1',
-               line: {width:0.5,
-                        color:'yellow'},
-               stackgroup:'one'
-            };
-            co2_trace = {
-               name:'Tons of CO2',
-               x:timestamps,
-               y:co2,
-               yaxis: 'y3',
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               type:'scatter',
-               line: {width:2,
-                     color:'limegreen'},
-            };
-            co2_per_mwh_trace = {
-               name:'gCO2/kWh',
-               x:timestamps,
-               y:co2_per_mwh,
-               yaxis: 'y2',
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               type:'scatter',
-               line: {width:2,
-                     color:'magenta'},
-            };
-            total_trace = {
-               name:'Total Generation NLDC Grid Level',
-               x:timestamps,
-               y:total_generation,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               type:'scatter',
-               visible:'legendonly',
-               yaxis: 'y1',
-               line: {width: 1, color:'gray'}
-            };
-            net_demand_trace = {
-               name:'Net Demand',
-               x:timestamps,
-               y:net_demand,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               type:'scatter',
-               visible:'legendonly',
-               yaxis: 'y1',
-               line: {width: 1, color:'purple'}
-            };
-            demand_met_trace = {
-               name:'Demand Met',
-               x:timestamps,
-               y:demand_met,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               type:'scatter',
-               yaxis: 'y1',
-               line: {width: 1, color:'brown'}
-            };
-            peak_trace = {
-               name:'Daily Highs',
-               x:peak_timestamps,
-               y:peak_values,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines+markers',
-               visible:'legendonly',
-               type:'scatter',
-               yaxis: 'y1',
-               line: {width: 1, color:'chartreuse', opacity: 1}
-            };
-            trough_trace = {
-               name:'Daily Lows',
-               x:trough_timestamps,
-               y:trough_values,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines+markers',
-               visible:'legendonly',
-               type:'scatter',
-               yaxis: 'y1',
-               line: {width: 1, color:'tomato', opacity: 1}
-            };
-            morning_peak_trace = {
-               name:'Morning Peaks',
-               x:morning_peak_timestamps,
-               y:morning_peak_values,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines+markers',
-               visible:'legendonly',
-               type:'scatter',
-               yaxis: 'y1',
-               line: {width: 1, color:'darkblue'}
-            };
-            evening_peak_trace = {
-               name:'Evening Peaks',
-               x:evening_peak_timestamps,
-               y:evening_peak_values,
-               hoverinfo:'x+y',
-               hoverlabel: {
-                  font: {
-                     family: 'Franklin Gothic Book'
-                  }
-               },
-               mode:'lines+markers',
-               visible:'legendonly',
-               type:'scatter',
-               yaxis: 'y1',
-               line: {width: 1, color:'orange'}
-            };
-            var traces = [co2_per_mwh_trace, co2_trace, peak_trace, trough_trace, morning_peak_trace, evening_peak_trace, thermal_trace, hydro_trace, gas_trace, nuclear_trace, renewable_trace, demand_met_trace, total_trace, net_demand_trace]
-
-            yaxis1_layout = {
-               'title': {
-                  'font': {
-                     'family': 'Franklin Gothic Medium',
-                     'size': 15,
-                  },
-                  'text': 'MW'
-               },
-               'tickfont': {
-                  'family': 'Franklin Gothic Book',
-                  'size': 15
-               }, 
-               'domain': [0.54, 1], 
-               'overlaying': 'y',
-               'gridwidth': 1,
-               'gridcolor': '#cccccc'
+         async function batchGetData(start_time, end_time, selected_value_type) {
+            data_type_param = ''
+            endpoint = ''
+            if(selected_value_type == 'Raw' || selected_value_type == 'Corrected'){
+               data_type_param = selected_value_type == 'Corrected' ? '&corrected_values=true' : '&corrected_values=false'
+               endpoint = 'get-merit-data'
             }
-            yaxis2_layout = {
-               'side': 'left', 
-               'title': {
-                  'font': {
-                     'family': 'Franklin Gothic Medium',
-                     'size': 15,
-                     'color': 'magenta'
-                  },
-                  'text': 'gCO2/kWh'
-               },
-               'tickfont': {
-                  'family': 'Franklin Gothic Book',
-                  'size': 15,
-                  'color': 'magenta'
-               }, 
-               'showgrid': false, 
-               'domain': [0, 0.46],
-               'gridwidth': 1,
-               'gridcolor': '#cccccc'
+            else{
+               if(selected_value_type == 'Daily Moving Averages'){
+                  data_type_param = '&ma_type=daily'
+               }
+               else if(selected_value_type == 'Weekly Moving Averages'){
+                  data_type_param = '&ma_type=weekly'
+               }
+               else if(selected_value_type == 'Monthly Moving Averages'){
+                  data_type_param = '&ma_type=monthly'
+               }
+               endpoint = 'get-merit-moving-averages'
             }
-            yaxis3_layout = {
-               'overlaying': 'y2', 
-               'side': 'right', 
-               'title': {
-                  'font': {
-                     'family': 'Franklin Gothic Medium',
-                     'size': 15,
-                     'color': 'limegreen'
-                  },
-                  'text': 'Tons CO2'
-               },
-               'tickfont': {
-                  'family': 'Franklin Gothic Book',
-                  'size': 15,
-                  'color': 'limegreen'
-               }, 
-               'showgrid': false, 
-               'domain': [0, 0.46],
-               'gridwidth': 1,
-               'gridcolor': '#cccccc'
+            promises = []
+            batch_start = new Date(start_time)
+            batch_end = new Date(start_time.getFullYear(), start_time.getMonth() + 1, 1);
+            while(batch_end < end_time){
+               promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(batch_end) + data_type_param))
+               batch_start = new Date(batch_end)
+               batch_end = new Date(batch_end.getFullYear(), batch_end.getMonth() + 1, 1);
             }
-            xaxis1_layout = {
-               'domain': [0, 0.9], 
-               'anchor': 'y2', 
-               'hoverformat': "%a %B %d, %Y, %H:%M", 
-               'title': {
-                  'font': {
-                     'family': 'Franklin Gothic Medium', 
-                     'size': 15
-                  }, 
-                  'text': 'Time'
-               },
-               'tickfont': {
-                  'family': 'Franklin Gothic Book',
-                  'size': 15
-               },
-               'gridwidth': 1,
-               'gridcolor': '#cccccc'
-            }
-
-            Plotly.newPlot(plotDiv, 
-               traces, 
-               {
-                  'title': {
-                     text: 'All-India Electricity Generation', 
-                     font: {
-                        family: 'Franklin Gothic Medium',
-                        size: 20
-                     },
-                     x: 0,
-                     xref: 'container',
-                     xanchor: 'left',
-                     pad: {'l': 30}
-                  }, 
-                  'xaxis': xaxis1_layout, 
-                  'yaxis': yaxis1_layout, 
-                  'yaxis2': yaxis2_layout, 
-                  'yaxis3': yaxis3_layout,
-                  'legend': {
-                     font: {
-                        family: 'Franklin Gothic Book',
-                        size: 15
-                     },
-                  }
-               });
-            document.getElementById('loading').style.display = 'none'
-         }
-
-         async function getData(start_time, end_time, selected_value_type) {
-            corrected_values = selected_value_type == 'Corrected' ? 'true' : 'false'
-           return await axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/get-merit-data?start_time=' + start_time + '&end_time=' + end_time + '&corrected_values=' + corrected_values);
+            promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(end_time) + data_type_param))
+            return_data = {}
+            return await Promise.all(promises)
          }
 
       </script>
