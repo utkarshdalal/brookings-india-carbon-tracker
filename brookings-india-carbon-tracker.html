@@ -1,0 +1,585 @@
+<html>
+   <head>
+   <title></title>
+   </head>
+   <body>
+
+      <style>
+         #loading {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(192, 192, 192, 0.3);
+            background-image: url("Rolling-1s-200px.gif");
+            background-repeat: no-repeat;
+            background-position: center;
+         }
+         [v-cloak] {
+            display: none;
+         }
+         button,
+         input,
+         select,
+         .time_input {
+            font-family: 'Franklin Gothic Book';
+            font-size: 15px;
+         }
+         #summary {
+            font-family: 'PT Serif';
+            padding-left: 30px;
+         }
+         #sources {
+            font-family: 'PT Serif';
+            font-size: 13px;
+            padding-left: 30px;
+         }
+      </style>
+
+      <div id="time_input" class="time_input" align="center">
+         <select v-model="selected_date_type">
+           <option disabled value="">Select date type</option>
+           <option>Week of</option>
+           <option>Month of</option>
+           <option>Range</option>
+         </select>
+
+         <label v-if="dateRange" v-cloak>From</label>
+         <vuejs-datepicker v-model="start_date" :disabled-dates="this.disabledStartDates" :value="start_date" style="display:inline-block;" v-cloak></vuejs-datepicker>
+
+         <div v-if="dateRange" v-cloak style="display:inline-block;">
+            <label v-cloak>To</label>
+            <vuejs-datepicker v-model="end_date" :disabled-dates="this.disabledEndDates" :value="end_date" style="display:inline-block;"></vuejs-datepicker>
+         </div>
+
+         <select v-model="selected_value_type">
+           <option disabled value="">Select data type</option>
+           <option>Corrected</option>
+           <option>Raw</option>
+         </select>
+
+         <button v-on:click="submit">Submit</button>
+      </div>
+
+      <div id="loading"></div>
+
+      <div id="plot" style="width:calc(100%);height:calc(90%);", align="center"></div>
+
+      <div id="sources" style="overflow:auto;vertical-align:middle;">
+         <span style="font-weight:bold;">Source: </span>
+         <span>meritindia.in</span>
+         <img src="brookings_logo.png" style="float:right;"></img>
+      </div>
+
+      <!-- <div id="summary">
+         <p> Summary Statistics Below </p>
+
+         <div id="time_range" v-cloak>
+            Between {{ start_time }} and {{ end_time }} :
+         </div>
+
+         <div id="min_co2" v-cloak>
+            Min gCO2/kWh: {{ min_co2 }} at {{ min_co2_time }}
+         </div>
+
+         <div id="max_co2" v-cloak>
+            Max gCO2/kWh: {{ max_co2 }} at {{ max_co2_time }}
+         </div>
+
+         <div id="total_co2" v-cloak>
+            Total Tons CO2: {{ total_co2 }}
+         </div>
+      </div> -->
+
+      <script src="https://unpkg.com/axios@0.18.0/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+      <script src="https://cdn.plot.ly/plotly-1.45.3.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/vuejs-datepicker@1.5.4/dist/vuejs-datepicker.min.js"></script>
+
+      <script>
+
+         var today = new Date();
+         var tomorrow = new Date();
+         tomorrow.setDate(today.getDate()+1);
+
+         function dateToString(date){
+            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+            var day = ('0' + date.getDate()).slice(-2);
+            var year = date.getFullYear();
+            return year + '-' + month + '-' + day + ' 00:00:00';
+         }
+
+         var timeRange = new Vue({
+            el: '#time_range',
+            data: {
+               start_time: null,
+               end_time: null
+            }
+         });
+
+         var minCo2Vue = new Vue({
+            el: '#min_co2',
+            data: {
+               min_co2: null,
+               min_co2_time: null
+            }
+         });
+
+         var maxCo2Vue = new Vue({
+            el: '#max_co2',
+            data: {
+               max_co2: null,
+               max_co2_time: null
+            }
+         });
+
+         var totalCo2Vue = new Vue({
+            el: '#total_co2',
+            data: {
+               total_co2: null
+            }
+         });
+
+         var timeInput = new Vue({
+           el: '#time_input',
+           data: {
+             selected_date_type: "Week of",
+             start_date: today,
+             end_date: tomorrow,
+             start_time: dateToString(today),
+             end_time: dateToString(tomorrow),
+             selected_value_type: "Corrected",
+             disabledStartDates: {
+               from: today,
+               to: new Date(2018, 10, 21)
+             },
+             disabledEndDates: {
+               from: tomorrow,
+               to: new Date(2018, 10, 21)
+             }
+           },
+           components: {
+             vuejsDatepicker
+           },
+           computed: {
+             dateRange: function() {
+                return this.selected_date_type == 'Range';
+             }
+           },
+           // define methods under the `methods` object
+           methods: {
+             submit: function (event) {
+               document.getElementById('loading').style.display = 'block'
+               if(this.selected_date_type == 'Week of'){
+                  first_day_of_week = this.start_date.getDate() - this.start_date.getDay()
+                  last_day_of_week = first_day_of_week + 7
+                  toDate = new Date();
+                  toDate = new Date(toDate.setDate(last_day_of_week));
+                  fromDate = new Date();
+                  fromDate = new Date(fromDate.setDate(first_day_of_week));
+               }
+               else if(this.selected_date_type == 'Month of'){
+                  toDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth() + 1, 1);
+                  fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), 1);
+               }
+               else{
+                  toDate = new Date(this.end_date.getTime());
+                  fromDate = new Date(this.start_date.getTime());
+               }
+               toDateString = dateToString(toDate)
+               fromDateString = dateToString(fromDate)
+               if(this.validate_input(fromDateString, toDateString)){
+                  getData(fromDateString, toDateString, this.selected_value_type).then(response => {
+                  data = JSON.parse(response.data)
+                  timeRange.start_time = this.start_time
+                  timeRange.end_time = this.end_time
+                  minCo2Vue.min_co2 = (data.min_co2_per_kwh).toFixed(2)
+                  minCo2Vue.min_co2_time = data.min_co2_per_kwh_time
+                  maxCo2Vue.max_co2 = (data.max_co2_per_kwh).toFixed(2)
+                  maxCo2Vue.max_co2_time = data.max_co2_per_kwh_time
+                  totalCo2Vue.total_co2 = (data.total_tons_co2).toFixed(2)
+                  timestamps = data.timeseries_values.timestamps
+                  thermal = data.timeseries_values.thermal_generation
+                  gas = data.timeseries_values.gas_generation
+                  hydro = data.timeseries_values.hydro_generation
+                  renewable = data.timeseries_values.renewable_generation
+                  nuclear = data.timeseries_values.nuclear_generation
+                  net_demand = data.timeseries_values.net_demand
+                  total = data.timeseries_values.total_generation
+                  demand_met = data.timeseries_values.demand_met
+                  co2 = data.timeseries_values.tons_co2
+                  co2_per_mwh = data.timeseries_values.g_co2_per_kwh
+
+                  peak_timestamps = data.peak_timestamps
+                  peak_values = data.peak_values
+                  trough_timestamps = data.trough_timestamps
+                  trough_values = data.trough_values
+                  morning_peak_timestamps = data.morning_peak_timestamps
+                  morning_peak_values = data.morning_peak_values
+                  evening_peak_timestamps = data.evening_peak_timestamps
+                  evening_peak_values = data.evening_peak_values
+
+                  plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
+                  });
+               }
+               else{
+                  alert("Please ensure your start time is before your end time.")
+                  document.getElementById('loading').style.display = 'none'
+               }
+             },
+             validate_input: function (start_time, end_time) {
+               regex = new RegExp(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+               if(regex.test(start_time) && regex.test(end_time)) {
+                  start_dt = new Date(start_time)
+                  end_dt = new Date(end_time)
+                  if(start_dt >= new Date('0000-01-01') && end_dt <= new Date('9999-01-01') && start_dt < end_dt){
+                     return true
+                  }
+               }
+               return false
+             }
+           },
+           mounted () {
+            this.submit()
+           }
+         })
+
+         function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total_generation, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values) {
+            var plotDiv = document.getElementById('plot');
+            thermal_trace = {
+               name:'Thermal Generation',
+               x:timestamps,
+               y:thermal,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines',
+               yaxis: 'y1',
+               line: {width:0.5,
+                        color:'black'},
+               stackgroup:'one'
+            };
+            hydro_trace = {
+               name:'Hydro Generation',
+               x:timestamps,
+               y:hydro,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines',
+               yaxis: 'y1',
+               line: {width:0.5,
+                        color:'cyan'},
+               stackgroup:'one'
+            };
+            gas_trace = {
+               name:'Gas Generation',
+               x:timestamps,
+               y:gas,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines',
+               yaxis: 'y1',
+               line: {width:0.5,
+                        color:'blue'},
+               stackgroup:'one'
+            };
+            nuclear_trace = {
+               name:'Nuclear Generation',
+               x:timestamps,
+               y:nuclear,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines',
+               yaxis: 'y1',
+               line: {width:0.5,
+                        color:'red'},
+               stackgroup:'one'
+            };
+            renewable_trace = {
+               name:'Renewable Generation',
+               x:timestamps,
+               y:renewable,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines',
+               yaxis: 'y1',
+               line: {width:0.5,
+                        color:'yellow'},
+               stackgroup:'one'
+            };
+            co2_trace = {
+               name:'Tons of CO2',
+               x:timestamps,
+               y:co2,
+               yaxis: 'y3',
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               type:'scatter',
+               line: {width:2,
+                     color:'limegreen'},
+            };
+            co2_per_mwh_trace = {
+               name:'gCO2/kWh',
+               x:timestamps,
+               y:co2_per_mwh,
+               yaxis: 'y2',
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               type:'scatter',
+               line: {width:2,
+                     color:'magenta'},
+            };
+            total_trace = {
+               name:'Total Generation NLDC Grid Level',
+               x:timestamps,
+               y:total_generation,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               type:'scatter',
+               visible:'legendonly',
+               yaxis: 'y1',
+               line: {width: 1, color:'gray'}
+            };
+            net_demand_trace = {
+               name:'Net Demand',
+               x:timestamps,
+               y:net_demand,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               type:'scatter',
+               visible:'legendonly',
+               yaxis: 'y1',
+               line: {width: 1, color:'purple'}
+            };
+            demand_met_trace = {
+               name:'Demand Met',
+               x:timestamps,
+               y:demand_met,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               type:'scatter',
+               yaxis: 'y1',
+               line: {width: 1, color:'brown'}
+            };
+            peak_trace = {
+               name:'Daily Highs',
+               x:peak_timestamps,
+               y:peak_values,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines+markers',
+               visible:'legendonly',
+               type:'scatter',
+               yaxis: 'y1',
+               line: {width: 1, color:'chartreuse', opacity: 1}
+            };
+            trough_trace = {
+               name:'Daily Lows',
+               x:trough_timestamps,
+               y:trough_values,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines+markers',
+               visible:'legendonly',
+               type:'scatter',
+               yaxis: 'y1',
+               line: {width: 1, color:'tomato', opacity: 1}
+            };
+            morning_peak_trace = {
+               name:'Morning Peaks',
+               x:morning_peak_timestamps,
+               y:morning_peak_values,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines+markers',
+               visible:'legendonly',
+               type:'scatter',
+               yaxis: 'y1',
+               line: {width: 1, color:'darkblue'}
+            };
+            evening_peak_trace = {
+               name:'Evening Peaks',
+               x:evening_peak_timestamps,
+               y:evening_peak_values,
+               hoverinfo:'x+y',
+               hoverlabel: {
+                  font: {
+                     family: 'Franklin Gothic Book'
+                  }
+               },
+               mode:'lines+markers',
+               visible:'legendonly',
+               type:'scatter',
+               yaxis: 'y1',
+               line: {width: 1, color:'orange'}
+            };
+            var traces = [co2_per_mwh_trace, co2_trace, peak_trace, trough_trace, morning_peak_trace, evening_peak_trace, thermal_trace, hydro_trace, gas_trace, nuclear_trace, renewable_trace, demand_met_trace, total_trace, net_demand_trace]
+
+            yaxis1_layout = {
+               'title': {
+                  'font': {
+                     'family': 'Franklin Gothic Medium',
+                     'size': 15,
+                  },
+                  'text': 'MW'
+               },
+               'tickfont': {
+                  'family': 'Franklin Gothic Book',
+                  'size': 15
+               }, 
+               'domain': [0.54, 1], 
+               'overlaying': 'y',
+               'gridwidth': 1,
+               'gridcolor': '#cccccc'
+            }
+            yaxis2_layout = {
+               'side': 'left', 
+               'title': {
+                  'font': {
+                     'family': 'Franklin Gothic Medium',
+                     'size': 15,
+                     'color': 'magenta'
+                  },
+                  'text': 'gCO2/kWh'
+               },
+               'tickfont': {
+                  'family': 'Franklin Gothic Book',
+                  'size': 15,
+                  'color': 'magenta'
+               }, 
+               'showgrid': false, 
+               'domain': [0, 0.46],
+               'gridwidth': 1,
+               'gridcolor': '#cccccc'
+            }
+            yaxis3_layout = {
+               'overlaying': 'y2', 
+               'side': 'right', 
+               'title': {
+                  'font': {
+                     'family': 'Franklin Gothic Medium',
+                     'size': 15,
+                     'color': 'limegreen'
+                  },
+                  'text': 'Tons CO2'
+               },
+               'tickfont': {
+                  'family': 'Franklin Gothic Book',
+                  'size': 15,
+                  'color': 'limegreen'
+               }, 
+               'showgrid': false, 
+               'domain': [0, 0.46],
+               'gridwidth': 1,
+               'gridcolor': '#cccccc'
+            }
+            xaxis1_layout = {
+               'domain': [0, 0.9], 
+               'anchor': 'y2', 
+               'hoverformat': "%a %B %d, %Y, %H:%M", 
+               'title': {
+                  'font': {
+                     'family': 'Franklin Gothic Medium', 
+                     'size': 15
+                  }, 
+                  'text': 'Time'
+               },
+               'tickfont': {
+                  'family': 'Franklin Gothic Book',
+                  'size': 15
+               },
+               'gridwidth': 1,
+               'gridcolor': '#cccccc'
+            }
+
+            Plotly.newPlot(plotDiv, 
+               traces, 
+               {
+                  'title': {
+                     text: 'All-India Electricity Generation', 
+                     font: {
+                        family: 'Franklin Gothic Medium',
+                        size: 20
+                     },
+                     x: 0,
+                     xref: 'container',
+                     xanchor: 'left',
+                     pad: {'l': 30}
+                  }, 
+                  'xaxis': xaxis1_layout, 
+                  'yaxis': yaxis1_layout, 
+                  'yaxis2': yaxis2_layout, 
+                  'yaxis3': yaxis3_layout,
+                  'legend': {
+                     font: {
+                        family: 'Franklin Gothic Book',
+                        size: 15
+                     },
+                  }
+               });
+            document.getElementById('loading').style.display = 'none'
+         }
+
+         async function getData(start_time, end_time, selected_value_type) {
+            corrected_values = selected_value_type == 'Corrected' ? 'true' : 'false'
+           return await axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/get-merit-data?start_time=' + start_time + '&end_time=' + end_time + '&corrected_values=' + corrected_values);
+         }
+
+      </script>
+
+   </body>
+</html>
