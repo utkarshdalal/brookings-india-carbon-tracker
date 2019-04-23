@@ -99,11 +99,9 @@ var timeInput = new Vue({
                  response_data.timeseries_values[key] = response_data.timeseries_values[key].concat(block.timeseries_values[key])
               }
               keys = Object.keys(block)
-              console.log(keys)
               for(j=0; j < keys.length; j++){
                  key = keys[j]
                  if(response_data[key].constructor === Array){
-                    console.log(response_data[key])
                     response_data[key] = response_data[key].concat(block[key])
                  }
               }
