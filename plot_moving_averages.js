@@ -241,7 +241,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
          'title': {
             text: 'All-India Electricity Generation', 
             font: {
-               family: 'Franklin Gothic Medium',
+               family: 'Franklin Gothic Demi',
                size: 20
             },
             x: 0,
