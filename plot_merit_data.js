@@ -303,7 +303,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
          'title': {
             text: 'All-India Electricity Generation', 
             font: {
-               family: 'Franklin Gothic Medium',
+               family: 'Franklin Gothic Demi',
                size: 20
             },
             x: 0,
