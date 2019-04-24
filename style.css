@@ -30,3 +30,15 @@ select,
    font-size: 13px;
    padding-left: 30px;
 }
+@font-face {
+   font-family: Franklin Gothic Demi;
+   src: url(Franklin_Gothic_Demi_Regular.ttf);
+}
+@font-face {
+   font-family: Franklin Gothic Medium;
+   src: url(Franklin_Gothic_Medium_Regular.ttf);
+}
+@font-face {
+   font-family: Franklin Gothic Book;
+   src: url(Franklin_Gothic_Book_Regular.ttf);
+}
