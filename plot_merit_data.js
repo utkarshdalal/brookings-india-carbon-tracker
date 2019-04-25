@@ -81,7 +81,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       stackgroup:'one'
    };
    co2_trace = {
-      name:'Tons of CO2',
+      name:'Tons of CO<sub>2</sub>',
       x:timestamps,
       y:co2,
       yaxis: 'y3',
@@ -96,7 +96,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
             color:'limegreen'},
    };
    co2_per_mwh_trace = {
-      name:'gCO2/kWh',
+      name:'gCO<sub>2</sub>/kWh',
       x:timestamps,
       y:co2_per_mwh,
       yaxis: 'y2',
@@ -245,7 +245,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
             'size': 15,
             'color': 'magenta'
          },
-         'text': 'gCO2/kWh'
+         'text': 'gCO<sub>2</sub>/kWh'
       },
       'tickfont': {
          'family': 'Franklin Gothic Book',
@@ -266,7 +266,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
             'size': 15,
             'color': 'limegreen'
          },
-         'text': 'Tons CO2'
+         'text': 'Tons of CO<sub>2</sub>'
       },
       'tickfont': {
          'family': 'Franklin Gothic Book',
