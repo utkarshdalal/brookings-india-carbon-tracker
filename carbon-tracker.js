@@ -88,68 +88,77 @@ var timeInput = new Vue({
      }
      if(this.validate_input(fromDate, toDate)){
         // Note that the stats are not included here! For example max CO2, min kgC02 etc
-        response_data = {}
-        batchGetData(fromDate, toDate, this.selected_value_type).then(response => {
-           response_data = JSON.parse(response[0].data)
-           for(i=1; i < response.length; i++){
-              block = JSON.parse(response[i].data)
-              keys = Object.keys(block.timeseries_values)
-              for(j=0; j < keys.length; j++){
-                 key = keys[j]
-                 response_data.timeseries_values[key] = response_data.timeseries_values[key].concat(block.timeseries_values[key])
-              }
-              keys = Object.keys(block)
-              for(j=0; j < keys.length; j++){
-                 key = keys[j]
-                 if(response_data[key].constructor === Array){
-                    response_data[key] = response_data[key].concat(block[key])
-                 }
-              }
-           }
-           data = response_data
-           timestamps = data.timeseries_values.timestamps
-           thermal = data.timeseries_values.thermal_generation
-           gas = data.timeseries_values.gas_generation
-           hydro = data.timeseries_values.hydro_generation
-           renewable = data.timeseries_values.renewable_generation
-           nuclear = data.timeseries_values.nuclear_generation
-           demand_met = data.timeseries_values.demand_met
+        if(this.is_summary_statistics()){
+            getData(dateToString(fromDate), dateToString(toDate), this.selected_value_type).then(response => {
+                data = JSON.parse(response.data);
+                console.log(data);
+                plot_summary_statistics(data);
+            });
+        }
+        else{
+            response_data = {}
+            batchGetData(fromDate, toDate, this.selected_value_type).then(response => {
+               response_data = JSON.parse(response[0].data)
+               for(i=1; i < response.length; i++){
+                  block = JSON.parse(response[i].data)
+                  keys = Object.keys(block.timeseries_values)
+                  for(j=0; j < keys.length; j++){
+                     key = keys[j]
+                     response_data.timeseries_values[key] = response_data.timeseries_values[key].concat(block.timeseries_values[key])
+                  }
+                  keys = Object.keys(block)
+                  for(j=0; j < keys.length; j++){
+                     key = keys[j]
+                     if(response_data[key].constructor === Array){
+                        response_data[key] = response_data[key].concat(block[key])
+                     }
+                  }
+               }
+               data = response_data
+               timestamps = data.timeseries_values.timestamps
+               thermal = data.timeseries_values.thermal_generation
+               gas = data.timeseries_values.gas_generation
+               hydro = data.timeseries_values.hydro_generation
+               renewable = data.timeseries_values.renewable_generation
+               nuclear = data.timeseries_values.nuclear_generation
+               demand_met = data.timeseries_values.demand_met
 
-           if(this.is_moving_averages()){
-              timestamps_ma = data.timeseries_values.ma_timestamps
-              thermal_ma = data.timeseries_values.thermal_generation_ma
-              gas_ma = data.timeseries_values.gas_generation_ma
-              hydro_ma = data.timeseries_values.hydro_generation_ma
-              renewable_ma = data.timeseries_values.renewable_generation_ma
-              nuclear_ma = data.timeseries_values.nuclear_generation_ma
-              demand_met_ma = data.timeseries_values.demand_met_ma
-              plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma, thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma)
-           }
-           else{
-              timeRange.start_time = this.start_time
-              timeRange.end_time = this.end_time
-              minCo2Vue.min_co2 = (data.min_co2_per_kwh).toFixed(2)
-              minCo2Vue.min_co2_time = data.min_co2_per_kwh_time
-              maxCo2Vue.max_co2 = (data.max_co2_per_kwh).toFixed(2)
-              maxCo2Vue.max_co2_time = data.max_co2_per_kwh_time
-              totalCo2Vue.total_co2 = (data.total_tons_co2).toFixed(2)
-              total = data.timeseries_values.total_generation
-              net_demand = data.timeseries_values.net_demand
-              co2 = data.timeseries_values.tons_co2
-              co2_per_mwh = data.timeseries_values.g_co2_per_kwh
+               if(this.is_moving_averages()){
+                  timestamps_ma = data.timeseries_values.ma_timestamps
+                  thermal_ma = data.timeseries_values.thermal_generation_ma
+                  gas_ma = data.timeseries_values.gas_generation_ma
+                  hydro_ma = data.timeseries_values.hydro_generation_ma
+                  renewable_ma = data.timeseries_values.renewable_generation_ma
+                  nuclear_ma = data.timeseries_values.nuclear_generation_ma
+                  demand_met_ma = data.timeseries_values.demand_met_ma
+                  plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma, thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma)
+               }
+               else{
+                  timeRange.start_time = this.start_time
+                  timeRange.end_time = this.end_time
+                  minCo2Vue.min_co2 = (data.min_co2_per_kwh).toFixed(2)
+                  minCo2Vue.min_co2_time = data.min_co2_per_kwh_time
+                  maxCo2Vue.max_co2 = (data.max_co2_per_kwh).toFixed(2)
+                  maxCo2Vue.max_co2_time = data.max_co2_per_kwh_time
+                  totalCo2Vue.total_co2 = (data.total_tons_co2).toFixed(2)
+                  total = data.timeseries_values.total_generation
+                  net_demand = data.timeseries_values.net_demand
+                  co2 = data.timeseries_values.tons_co2
+                  co2_per_mwh = data.timeseries_values.g_co2_per_kwh
 
-              peak_timestamps = data.peak_timestamps
-              peak_values = data.peak_values
-              trough_timestamps = data.trough_timestamps
-              trough_values = data.trough_values
-              morning_peak_timestamps = data.morning_peak_timestamps
-              morning_peak_values = data.morning_peak_values
-              evening_peak_timestamps = data.evening_peak_timestamps
-              evening_peak_values = data.evening_peak_values
+                  peak_timestamps = data.peak_timestamps
+                  peak_values = data.peak_values
+                  trough_timestamps = data.trough_timestamps
+                  trough_values = data.trough_values
+                  morning_peak_timestamps = data.morning_peak_timestamps
+                  morning_peak_values = data.morning_peak_values
+                  evening_peak_timestamps = data.evening_peak_timestamps
+                  evening_peak_values = data.evening_peak_values
 
-              plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
-           }
-        });
+                  plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
+               }
+            });
+        }
      }
      else{
         alert("Please ensure your start time is before your end time.")
@@ -164,6 +173,12 @@ var timeInput = new Vue({
    },
    is_moving_averages: function() {
      if(this.selected_value_type == 'Daily Moving Averages' || this.selected_value_type == 'Monthly Moving Averages' || this.selected_value_type == 'Weekly Moving Averages'){
+        return true;
+     }
+     return false;
+   },
+   is_summary_statistics: function() {
+     if(this.selected_value_type == 'Summary Statistics'){
         return true;
      }
      return false;
@@ -204,4 +219,13 @@ async function batchGetData(start_time, end_time, selected_value_type) {
   promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(end_time) + data_type_param))
   return_data = {}
   return await Promise.all(promises)
+}
+
+
+async function getData(start_time, end_time, selected_value_type) {
+    endpoint = ''
+    if(selected_value_type == 'Summary Statistics'){
+        endpoint = 'get-merit-summary-statistics'
+    }
+    return await axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + start_time + '&end_time=' + end_time);
 }
