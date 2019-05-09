@@ -91,7 +91,6 @@ var timeInput = new Vue({
         if(this.is_summary_statistics()){
             getData(dateToString(fromDate), dateToString(toDate), this.selected_value_type).then(response => {
                 data = JSON.parse(response.data);
-                console.log(data);
                 plot_summary_statistics(data);
             });
         }
