@@ -2,6 +2,13 @@ var today = new Date();
 var tomorrow = new Date();
 tomorrow.setDate(today.getDate()+1);
 
+var isMobile = false;
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  isMobile = true;
+}
+
+var selectedValueType = isMobile ? "Summary Statistics" : "Corrected"
+
 function dateToString(date){
   var month = ('0' + (date.getMonth() + 1)).slice(-2);
   var day = ('0' + date.getDate()).slice(-2);
@@ -48,7 +55,7 @@ var timeInput = new Vue({
    end_date: tomorrow,
    start_time: dateToString(today),
    end_time: dateToString(tomorrow),
-   selected_value_type: "Corrected",
+   selected_value_type: selectedValueType,
    disabledStartDates: {
      from: today,
      to: new Date(2018, 10, 21)
