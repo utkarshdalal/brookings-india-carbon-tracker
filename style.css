@@ -57,11 +57,26 @@ select,
 }
 /* Modal Content/Box */
 .modal-content {
+  font-family: 'Franklin Gothic Book';
   background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
+  margin: 5% auto; /* 10% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
   width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.modal-content span {
+  display:block;
+}
+
+.modal-content .question {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.modal-content .answer {
+  font-size: 15px;
+  font-weight: italic;
 }
 
 /* The Close Button */
