@@ -149,7 +149,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       visible:'legendonly',
       yaxis: 'y1',
       line: {width:0.5,
-               color:'yellow'},
+               color:'orange'},
    };
    renewable_ma_trace = {
       name:'Renewable Generation Moving Average',
