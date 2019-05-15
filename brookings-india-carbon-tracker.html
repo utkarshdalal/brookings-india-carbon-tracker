@@ -6,6 +6,27 @@
 
       <link href="style.css" rel="stylesheet" type="text/css">
 
+      <!-- Trigger/Open The Modal -->
+      <button id="myBtn" style="display:inline;float:left">FAQs</button>
+
+      <!-- The Modal -->
+      <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p>Some text in the Modal..</p>
+            <p>Some text in the Modal..</p>
+            <p>Some text in the Modal..</p>
+            <p>Some text in the Modal..</p>
+            <p>Some text in the Modal..</p>
+            <p>Some text in the Modal..</p>
+            <p>Some text in the Modal..</p>
+
+        </div>
+
+      </div>
+
       <div id="time_input" class="time_input" align="center">
          <select v-model="selected_date_type">
            <option disabled value="">Select date type</option>
@@ -50,26 +71,6 @@
           <div style="clear:both;display:block;"></div>
       </div>
 
-      <!-- <div id="summary">
-         <p> Summary Statistics Below </p>
-
-         <div id="time_range" v-cloak>
-            Between {{ start_time }} and {{ end_time }} :
-         </div>
-
-         <div id="min_co2" v-cloak>
-            Min gCO2/kWh: {{ min_co2 }} at {{ min_co2_time }}
-         </div>
-
-         <div id="max_co2" v-cloak>
-            Max gCO2/kWh: {{ max_co2 }} at {{ max_co2_time }}
-         </div>
-
-         <div id="total_co2" v-cloak>
-            Total Tons CO2: {{ total_co2 }}
-         </div>
-      </div> -->
-
       <script src="https://unpkg.com/axios@0.18.0/dist/axios.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
       <script src="https://cdn.plot.ly/plotly-1.45.3.min.js"></script>
@@ -78,6 +79,7 @@
       <script src="plot_moving_averages.js"></script>
       <script src="plot_summary_statistics.js"></script>
       <script src="carbon-tracker.js"></script>
+      <script src="faq_modal.js"></script>
 
    </body>
 </html>
