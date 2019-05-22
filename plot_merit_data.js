@@ -81,7 +81,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       stackgroup:'one'
    };
    co2_trace = {
-      name:'Tons of CO<sub>2</sub>',
+      name:'Tons CO<sub>2</sub> Per 5 Mins',
       x:timestamps,
       y:co2,
       yaxis: 'y3',
@@ -123,10 +123,10 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       type:'scatter',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width: 1, color:'gray'}
+      line: {width: 2, color:'gray'}
    };
    net_demand_trace = {
-      name:'Net Demand',
+      name:'Net Demand (Gen Excl RE)',
       x:timestamps,
       y:net_demand,
       hoverinfo:'x+y',
@@ -138,7 +138,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       type:'scatter',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width: 1, color:'purple'}
+      line: {width: 2, color:'purple'}
    };
    demand_met_trace = {
       name:'Demand Met',
@@ -152,7 +152,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       },
       type:'scatter',
       yaxis: 'y1',
-      line: {width: 1, color:'brown'}
+      line: {width: 2, color:'brown'}
    };
    peak_trace = {
       name:'Daily Highs',
@@ -168,7 +168,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       visible:'legendonly',
       type:'scatter',
       yaxis: 'y1',
-      line: {width: 1, color:'chartreuse', opacity: 1}
+      line: {width: 2, color:'chartreuse', opacity: 1}
    };
    trough_trace = {
       name:'Daily Lows',
@@ -184,7 +184,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       visible:'legendonly',
       type:'scatter',
       yaxis: 'y1',
-      line: {width: 1, color:'tomato', opacity: 1}
+      line: {width: 2, color:'tomato', opacity: 1}
    };
    morning_peak_trace = {
       name:'Morning Peaks',
@@ -200,7 +200,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       visible:'legendonly',
       type:'scatter',
       yaxis: 'y1',
-      line: {width: 1, color:'darkblue'}
+      line: {width: 2, color:'darkblue'}
    };
    evening_peak_trace = {
       name:'Evening Peaks',
@@ -216,9 +216,17 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       visible:'legendonly',
       type:'scatter',
       yaxis: 'y1',
-      line: {width: 1, color:'orange'}
+      line: {width: 2, color:'orange'}
    };
-   var traces = [co2_per_mwh_trace, co2_trace, peak_trace, trough_trace, morning_peak_trace, evening_peak_trace, thermal_trace, hydro_trace, gas_trace, nuclear_trace, renewable_trace, demand_met_trace, total_trace, net_demand_trace]
+   title_trace = {
+      name:'<b><i>Click fields below to enable/disable</i></b>',
+      x:[null],
+      y:[null],
+      line: {color: 'rgba(0, 0, 0, 0)'}
+   };
+   var traces = [co2_per_mwh_trace, co2_trace, thermal_trace, hydro_trace, gas_trace, nuclear_trace, renewable_trace,
+   peak_trace, trough_trace, morning_peak_trace, evening_peak_trace, demand_met_trace, total_trace, net_demand_trace,
+   title_trace]
 
    yaxis1_layout = {
       'title': {
@@ -266,7 +274,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
             'size': 15,
             'color': 'limegreen'
          },
-         'text': 'Tons of CO<sub>2</sub>'
+         'text': 'Tons CO<sub>2</sub> Per 5 Mins'
       },
       'tickfont': {
          'family': 'Franklin Gothic Book',
@@ -301,7 +309,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       traces, 
       {
          'title': {
-            text: 'All-India Electricity Generation', 
+            text: 'Brookings India Carbon Tracker',
             font: {
                family: 'Franklin Gothic Demi',
                size: 20

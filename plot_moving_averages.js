@@ -1,4 +1,5 @@
-function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma, thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma){
+function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma,
+                              thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma){
    var plotDiv = document.getElementById('plot');
    thermal_trace = {
       name:'Thermal Generation',
@@ -13,7 +14,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       mode:'lines',
       yaxis: 'y1',
       legendgroup: 'thermal',
-      line: {width:0.5,
+      line: {width: 0.5,
                color:'gray'},
    };
    thermal_ma_trace = {
@@ -29,7 +30,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       mode:'lines',
       yaxis: 'y1',
       legendgroup: 'thermal',
-      line: {width:1,
+      line: {width: 2,
                color:'black'},
    };
    hydro_trace = {
@@ -46,7 +47,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'hydro',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:0.5,
+      line: {width: 0.5,
                color:'cyan'},
    };
    hydro_ma_trace = {
@@ -63,7 +64,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'hydro',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:1,
+      line: {width: 2,
                color:'darkcyan'},
    };
    gas_trace = {
@@ -80,7 +81,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'gas',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:0.5,
+      line: {width: 0.5,
                color:'blue'},
    };
    gas_ma_trace = {
@@ -97,7 +98,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'gas',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:1,
+      line: {width: 2,
                color:'darkblue'},
    };
    nuclear_trace = {
@@ -114,7 +115,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'nuclear',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:0.5,
+      line: {width: 0.5,
                color:'red'},
    };
    nuclear_ma_trace = {
@@ -131,7 +132,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'nuclear',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:1,
+      line: {width: 2,
                color:'darkred'},
    };
    renewable_trace = {
@@ -148,7 +149,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'renewable',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:0.5,
+      line: {width: 0.5,
                color:'orange'},
    };
    renewable_ma_trace = {
@@ -165,7 +166,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       legendgroup: 'renewable',
       visible:'legendonly',
       yaxis: 'y1',
-      line: {width:1,
+      line: {width: 2,
                color:'darkkhaki'},
    };
    demand_met_trace = {
@@ -196,10 +197,17 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       type:'lines',
       legendgroup: 'demand_met',
       yaxis: 'y1',
-      line: {width: 1, color:'sandybrown'}
+      line: {width: 2, color:'sandybrown'}
+   };
+   title_trace = {
+      name:'<b><i>Click fields below to enable/disable</i></b>',
+      x:[null],
+      y:[null],
+      legendgroup: 'title',
+      line: {color: 'rgba(0, 0, 0, 0)'}
    };
 
-   var traces = [thermal_trace, thermal_ma_trace, hydro_trace, hydro_ma_trace, gas_trace, gas_ma_trace, 
+   var traces = [thermal_trace, thermal_ma_trace, hydro_trace, hydro_ma_trace, gas_trace, gas_ma_trace,
    nuclear_trace, nuclear_ma_trace, renewable_trace, renewable_ma_trace, demand_met_trace, demand_met_ma_trace]
 
    yaxis1_layout = {
@@ -239,7 +247,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       traces, 
       {
          'title': {
-            text: 'All-India Electricity Generation', 
+            text: 'Brookings India Carbon Tracker',
             font: {
                family: 'Franklin Gothic Demi',
                size: 20

@@ -9,8 +9,6 @@ function plot_summary_statistics(data){
    tableCellColours = new Array(7).fill(rowColour1).concat(new Array(9).fill(rowColour2))
                       .concat(new Array(10).fill(rowColour3)).concat(new Array(4).fill(rowColour4))
 
-   console.log(tableCellColours)
-
 
    var values = [
       ['Total Generation (MWh)',
@@ -96,6 +94,18 @@ function plot_summary_statistics(data){
       },
    }]
 
-   Plotly.newPlot(plotDiv, data);
+   var layout = {'title': {
+                    text: 'Brookings India Carbon Tracker',
+                    font: {
+                       family: 'Franklin Gothic Demi',
+                       size: 20
+                    },
+                    x: 0,
+                    xref: 'container',
+                    xanchor: 'left',
+                    pad: {'l': 30}
+                 }}
+
+   Plotly.newPlot(plotDiv, data, layout);
    document.getElementById('loading').style.display = 'none'
 }
