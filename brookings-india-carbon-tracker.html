@@ -24,8 +24,8 @@
 
          <select v-model="selected_value_type">
            <option disabled value="">Select data type</option>
-           <option>Corrected</option>
-           <option>Raw</option>
+           <option>Corrected Generation Data</option>
+           <option>Raw Generation Data</option>
            <option>Daily Moving Averages</option>
            <option>Weekly Moving Averages</option>
            <option>Monthly Moving Averages</option>
@@ -42,10 +42,12 @@
       <div id="sources">
           <div id="sources_text" style="display:inline-block;">
               <span style="font-weight:bold;">Source: </span>
-              <span>meritindia.in</span>
+              <span>MERIT India Website</span>
           </div>
           <div id="sources_image" align="right" style="display:inline-block;float:right;padding-right:39px;">
-              <img src="brookings-india-white-logo.png" style="width:auto;height:3.5%;">
+              <a href="https://www.brookings.in/">
+                  <img src="brookings-india-white-logo.png" style="width:auto;height:3.5%;">
+              </a>
           </div>
           <div style="clear:both;display:block;"></div>
       </div>
