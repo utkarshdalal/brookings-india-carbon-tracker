@@ -187,7 +187,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       line: {width: 2, color:'tomato', opacity: 1}
    };
    morning_peak_trace = {
-      name:'Morning Peaks',
+      name:'6am - 6pm Peaks',
       x:morning_peak_timestamps,
       y:morning_peak_values,
       hoverinfo:'x+y',
@@ -203,7 +203,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       line: {width: 2, color:'darkblue'}
    };
    evening_peak_trace = {
-      name:'Evening Peaks',
+      name:'6pm - 6am Peaks',
       x:evening_peak_timestamps,
       y:evening_peak_values,
       hoverinfo:'x+y',

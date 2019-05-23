@@ -6,7 +6,7 @@ function plot_summary_statistics(data){
    var rowColour3 = "lightpink";
    var rowColour4 = "lightyellow";
 
-   tableCellColours = new Array(7).fill(rowColour1).concat(new Array(9).fill(rowColour2))
+   tableCellColours = new Array(7).fill(rowColour1).concat(new Array(12).fill(rowColour2))
                       .concat(new Array(10).fill(rowColour3)).concat(new Array(4).fill(rowColour4))
 
 
@@ -25,8 +25,11 @@ function plot_summary_statistics(data){
        'Avg Daily Swing in Generation (MW)',
        'Date of Max Swing in Generation',
        'Max Swing in Generation (MW)',
-       'Days with Peak Generation in the Daytime',
-       'Days with Peak Generation in the Evening',
+       'Days with Peak Generation in the Early Morning (Midnight - 6 am)',
+       'Days with Peak Generation in the Morning (6 am - 10 am)',
+       'Days with Peak Generation in the Midday (10 am - 2 pm)',
+       'Days with Peak Generation in the Late Afternoon (2 pm - 6 pm)',
+       'Days with Peak Generation in the Evening (6 pm - Midnight)',
        'Time of Period Max Generation',
        'Period Max Generation (MW)',
        'Renewable Generation as a % of Period Max Generation',
@@ -55,7 +58,10 @@ function plot_summary_statistics(data){
        data.avg_daily_swing.toLocaleString(undefined, {maximumFractionDigits:2}),
        data.max_daily_swing_date,
        data.max_daily_swing.toLocaleString(undefined, {maximumFractionDigits:2}),
+       data.num_early_morning_peaks,
        data.num_morning_peaks,
+       data.num_midday_peaks,
+       data.num_afternoon_peaks,
        data.num_evening_peaks,
        data.peak_time,
        data.peak_mw.toLocaleString(undefined, {maximumFractionDigits:2}),
