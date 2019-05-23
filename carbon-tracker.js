@@ -7,7 +7,7 @@ if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
   isMobile = true;
 }
 
-var selectedValueType = isMobile ? "Summary Statistics" : "Corrected"
+var selectedValueType = isMobile ? "Summary Statistics" : "Corrected Generation Data"
 
 function dateToString(date){
   var month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -198,8 +198,8 @@ var timeInput = new Vue({
 async function batchGetData(start_time, end_time, selected_value_type) {
   data_type_param = ''
   endpoint = ''
-  if(selected_value_type == 'Raw' || selected_value_type == 'Corrected'){
-     data_type_param = selected_value_type == 'Corrected' ? '&corrected_values=true' : '&corrected_values=false'
+  if(selected_value_type == 'Raw Generation Data' || selected_value_type == 'Corrected Generation Data'){
+     data_type_param = selected_value_type == 'Corrected Generation Data' ? '&corrected_values=true' : '&corrected_values=false'
      endpoint = 'get-merit-data'
   }
   else{
