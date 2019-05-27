@@ -1,4 +1,4 @@
-function plot_summary_statistics(data){
+function plot_summary_statistics(data, fromDateString, toDateString){
    var plotDiv = document.getElementById('plot');
 
    var rowColour1 = "lightblue";
@@ -83,7 +83,7 @@ function plot_summary_statistics(data){
       type: 'table',
       columnwidth: [60, 40],
       header: {
-        values: [["<b>Statistics Over Period</b>"], ["<b>Value</b>"]],
+        values: [["<b>Statistics Over Period " + fromDateString + " to " + toDateString + "</b>"], ["<b>Value</b>"]],
         align: "center",
         line: {width: 1, color: 'black'},
         fill: {color: "grey"},
@@ -101,7 +101,7 @@ function plot_summary_statistics(data){
    }]
 
    var layout = {'title': {
-                    text: 'Brookings India Carbon Tracker',
+                    text: 'Brookings India Electricity & Carbon Tracker',
                     font: {
                        family: 'Franklin Gothic Demi',
                        size: 20

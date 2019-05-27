@@ -96,9 +96,11 @@ var timeInput = new Vue({
      if(this.validate_input(fromDate, toDate)){
         // Note that the stats are not included here! For example max CO2, min kgC02 etc
         if(this.is_summary_statistics()){
-            getData(dateToString(fromDate), dateToString(toDate), this.selected_value_type).then(response => {
+            fromDateString = dateToString(fromDate)
+            toDateString = dateToString(toDate)
+            getData(fromDateString, toDateString, this.selected_value_type).then(response => {
                 data = JSON.parse(response.data);
-                plot_summary_statistics(data);
+                plot_summary_statistics(data, fromDateString.substring(0, 10), toDateString.substring(0, 10));
             });
         }
         else{
