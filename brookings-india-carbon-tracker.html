@@ -1,6 +1,6 @@
 <html>
    <head>
-   <title></title>
+   <title>Brookings India Electricity & Carbon Tracker</title>
    </head>
    <body>
 
@@ -129,13 +129,16 @@
                         <li>We correct for these errors by boosting any generation source that has dropped by more than
                             10%. You can see this under <b>Corrected Generation Data</b></li>
                         <li><b>CO<sub>2</sub> emissions</b> are calculated by converting generation by source to MWh for
-                            each 5-minute block, and then multiplying by fixed emissions factors for each source</li>
+                            each 5-minute block, and then multiplying by fixed emission factors for each source</li>
+                        <li>The emission factors that we use are the <i>weighted average specific emission factors</i>
+                            as mentioned in the report <i>CO2 Baseline Database for the Indian Power Sector</i>
+                            (December 2018) published by the Central Electricity Authority.</i></li>
                         <li><b>gCO<sub>2</sub>/kWh</b> is calculated by dividing emissions by total generation for a
                             timestamp</li>
                         <li>For <b>Moving Averages</b> per timestamp, we calculate the average for a fixed period
                             preceding the timestamp. For example, for weekly moving averages for thermal generation at
                             a timestamp, we find the average thermal generation in MW over the 7 days before the
-                            timestamp.</li>
+                            timestamp</li>
                     </ul>
                 </span>
                 <span class="question">Limitations</span>
@@ -145,7 +148,7 @@
                             generation which is not included in the tracker, so actual generation (especially renewable
                             generation) may be higher.</li>
                         <li>We use flat emission factors for each source for all times of day. Additionally, the
-                            emissions factors for hydro, nuclear and renewable generation are 0. This means we do not
+                            emission factors for hydro, nuclear and renewable generation are 0. This means we do not
                             capture embedded and time-of-day variations in emissions</li>
                     </ul>
                 </span>
