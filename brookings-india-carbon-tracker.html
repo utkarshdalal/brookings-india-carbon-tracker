@@ -128,38 +128,36 @@
                <span class="question">Data</span>
                <span class="answer">
             <ul>
-            <li>We receive data every 3 minutes, as national generation by source in MW, as well as
-            national demand met in MW</li>
-            <li>This data comes via the SCADA system</li>
+            <li>We obtain  data every 3 minutes, as national generation by source in MW, as well as national demand met
+                in MW. This allows us to display and analyse data based on 5 minute intervals.</li>
+            <li>The underlying data in instrumented data available as per NLDC/RLDCs, via the SCADA system.</li>
             </ul>
             </span>
             <span class="question">Methodology</span>
             <span class="answer">
                <ul>
-                  <li>The data is then rounded to the preceding 5-minute interval, which you can see under
-                     <b>Raw Generation Data</b>
+                  <li>The data is then mapped to the nearest preceding 5-minute timestamp, which you can see under
+                     <b>Raw Generation Data</b>.
                   </li>
                   <li>However, sometimes there are errors in this data where there is a sudden reduction in
                      generation from one or more sources. You can see an example of this on January 7th 2019
-                     at 2:40 pm
+                     at 2:40 pm.
                   </li>
-                  <li>We correct for these errors by boosting any generation source that has dropped by more than
-                     10%. You can see this under <b>Corrected Generation Data</b>
+                  <li>Under <b>Corrected Generation Data</b>, we apply limited corrections for any generation source
+                       that has dropped by more than 10% in a time block.
                   </li>
-                  <li><b>CO<sub>2</sub> emissions</b> are calculated by converting generation by source to MWh for
-                     each 5-minute block, and then multiplying by fixed emission factors for each source
-                  </li>
-                  <li>The emission factors that we use are the <i>weighted average specific emission factors</i>
-                     as mentioned in the report <i>CO2 Baseline Database for the Indian Power Sector</i>
-                     (December 2018) published by the Central Electricity Authority.</i>
+                  <li><b>CO<sub>2</sub> emissions</b> are calculated by converting generation by fossil fuel source to
+                     MWh for each 5-minute block, and then multiplying by the CEA's <i>weighted average specific
+                     emission factors</i> for each type of fuel as mentioned in the report <i>CO2 Baseline Database for
+                     the Indian Power Sector</i> (December 2018).
                   </li>
                   <li><b>gCO<sub>2</sub>/kWh</b> is calculated by dividing emissions by total generation for a
-                     timestamp
+                     time period.
                   </li>
                   <li>For <b>Moving Averages</b> per timestamp, we calculate the average for a fixed period
-                     preceding the timestamp. For example, for weekly moving averages for thermal generation at
+                     preceding a timestamp. For example, for weekly moving averages for thermal generation at
                      a timestamp, we find the average thermal generation in MW over the 7 days before the
-                     timestamp
+                     timestamp.
                   </li>
                </ul>
             </span>
@@ -170,9 +168,9 @@
                      generation which is not included in the tracker, so actual generation (especially renewable
                      generation) may be higher.
                   </li>
-                  <li>We use flat emission factors for each source for all times of day. Additionally, the
-                     emission factors for hydro, nuclear and renewable generation are 0. This means we do not
-                     capture embedded and time-of-day variations in emissions
+                  <li>We use constant emission factors for each source for all times of day, without differentiating
+                      down to the plant level. Additionally, the carbon emissions factors for hydro, nuclear and
+                      renewable generation are taken as zero, thus ignoring embedded or lifecycle emissions.
                   </li>
                </ul>
             </span>
