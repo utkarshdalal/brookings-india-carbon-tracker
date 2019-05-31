@@ -167,6 +167,7 @@ var timeInput = new Vue({
                }
             });
         }
+        document.getElementById('loading_text').style.display = 'none'
      }
      else{
         alert("Please ensure your start time is before your end time.")
@@ -198,6 +199,7 @@ var timeInput = new Vue({
 })
 
 async function batchGetData(start_time, end_time, selected_value_type) {
+  setTimeout(function(){ document.getElementById('loading_text').style.display = 'block' }, 1000 * 2 * 60)
   data_type_param = ''
   endpoint = ''
   if(selected_value_type == 'Raw Generation Data' || selected_value_type == 'Corrected Generation Data'){
@@ -231,6 +233,7 @@ async function batchGetData(start_time, end_time, selected_value_type) {
 
 
 async function getData(start_time, end_time, selected_value_type) {
+    setTimeout(function(){ document.getElementById('loading_text').style.display = 'block' }, 1000 * 2 * 60)
     endpoint = ''
     if(selected_value_type == 'Summary Statistics'){
         endpoint = 'get-merit-summary-statistics'
