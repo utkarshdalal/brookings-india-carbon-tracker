@@ -7,7 +7,7 @@ function plot_summary_statistics(data, fromDateString, toDateString){
    var rowColour4 = "lightyellow";
 
    tableCellColours = new Array(7).fill(rowColour1).concat(new Array(12).fill(rowColour2))
-                      .concat(new Array(10).fill(rowColour3)).concat(new Array(4).fill(rowColour4))
+                      .concat(new Array(12).fill(rowColour3)).concat(new Array(4).fill(rowColour4))
 
 
    var values = [
@@ -40,6 +40,8 @@ function plot_summary_statistics(data, fromDateString, toDateString){
        'Avg Net Demand at Daily Peak (MW)',
        'Avg Net Demand at Daily Peak if Shifted to Max Renewable Generation Time (MW)',
        'Avg % Reduction in Net Demand from Peak Shifting',
+       'Median Peak Time',
+       'Median Peak Renewable Time',
        'Time of Max gCO<sub>2</sub>/kWh',
        'Max gCO<sub>2</sub>/kWh',
        'Time of Min gCO<sub>2</sub>/kWh',
@@ -73,6 +75,8 @@ function plot_summary_statistics(data, fromDateString, toDateString){
        data.avg_net_demand_at_peak.toLocaleString(undefined, {maximumFractionDigits:2}),
        data.avg_net_demand_at_shifted_peak.toLocaleString(undefined, {maximumFractionDigits:2}),
        data.avg_co2_reduction_from_peak_shifting.toLocaleString(undefined, {maximumFractionDigits:2}),
+       data.median_peak_time,
+       data.median_renewable_time,
        data.max_co2_per_kwh_time,
        data.max_co2_per_kwh.toLocaleString(undefined, {maximumFractionDigits:2}),
        data.min_co2_per_kwh_time,
