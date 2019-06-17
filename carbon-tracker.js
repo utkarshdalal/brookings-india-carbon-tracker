@@ -94,13 +94,72 @@ var timeInput = new Vue({
         fromDate = new Date(this.start_date.getTime());
      }
      if(this.validate_input(fromDate, toDate)){
-        // Note that the stats are not included here! For example max CO2, min kgC02 etc
         if(this.is_summary_statistics()){
-            fromDateString = dateToString(fromDate)
-            toDateString = dateToString(toDate)
-            getData(fromDateString, toDateString, this.selected_value_type).then(response => {
-                data = JSON.parse(response.data);
-                plot_summary_statistics(data, fromDateString.substring(0, 10), toDateString.substring(0, 10));
+            response_data = {}
+            batchGetData(fromDate, toDate, this.selected_value_type).then(response => {
+               fields_to_add = ['total_tons_co2', 'total_generation_mwh', 'total_renewable_generation_mwh',
+                                'num_early_morning_peaks', 'num_morning_peaks',
+                                'num_midday_peaks', 'num_afternoon_peaks', 'num_evening_peaks']
+               response_data = JSON.parse(response[0].data)
+               for(i=1; i < response.length; i++){
+                  block = JSON.parse(response[i].data)
+                  keys = Object.keys(block)
+                  if(block.max_co2_per_kwh > response_data.max_co2_per_kwh){
+                     response_data.max_co2_per_kwh = block.max_co2_per_kwh
+                     response_data.max_co2_per_kwh_time = block.max_co2_per_kwh_time
+                  }
+                  if(block.min_co2_per_kwh < response_data.min_co2_per_kwh){
+                     response_data.min_co2_per_kwh = block.min_co2_per_kwh
+                     response_data.min_co2_per_kwh_time = block.min_co2_per_kwh_time
+                  }
+                  if(block.peak_mw > response_data.peak_mw){
+                     response_data.peak_mw = block.peak_mw
+                     response_data.peak_time = block.peak_time
+                  }
+                  if(block.trough_mw < response_data.trough_mw){
+                     response_data.trough_mw = block.trough_mw
+                     response_data.trough_time = block.trough_time
+                  }
+                  if(block.max_daily_swing > response_data.max_daily_swing){
+                     response_data.max_daily_swing = block.max_daily_swing
+                     response_data.max_daily_swing_date = block.max_daily_swing_date
+                  }
+                  if(block.peak_renewable_percentage > response_data.peak_renewable_percentage){
+                     response_data.peak_renewable_percentage = block.peak_renewable_percentage
+                  }
+                  if(block.trough_renewable_percentage < response_data.trough_renewable_percentage){
+                     response_data.trough_renewable_percentage = block.trough_renewable_percentage
+                  }
+                  for(j=0; j < fields_to_add.length; j++){
+                     response_data[fields_to_add[j]] += block[fields_to_add[j]]
+                  }
+                  keys = Object.keys(block)
+                  for(j=0; j < keys.length; j++){
+                     key = keys[j]
+                     if(response_data[key].constructor === Array){
+                        response_data[key] = response_data[key].concat(block[key])
+                     }
+                  }
+               }
+               response_data['total_renewable_percentage'] = response_data['total_renewable_generation_mwh']/response_data['total_generation_mwh'] * 100
+               response_data['avg_peak_renewable_percentage'] = math.mean(response_data['peak_renewable_percentage_list'])
+               response_data['avg_total_generation'] = math.mean(response_data['total_generation_list'])
+               response_data['total_generation_stdev'] = math.std(response_data['total_generation_list'])
+               response_data['avg_renewable_generation'] = math.mean(response_data['renewable_generation_list'])
+               response_data['avg_daytime_renewable_generation'] = math.mean(response_data['daytime_renewable_generation_list'])
+               response_data['avg_daytime_renewable_generation_pct'] = math.mean(response_data['daytime_renewable_generation_pct_list'])
+               response_data['avg_peak_generation'] = math.mean(response_data['peak_value_list'])
+               response_data['avg_trough_generation'] = math.mean(response_data['trough_value_list'])
+               response_data['avg_daily_swing'] = math.mean(response_data['daily_swing_list'])
+               response_data['avg_net_demand_at_peak'] = math.mean(response_data['net_demand_at_peak_list'])
+               response_data['avg_net_demand_at_shifted_peak'] = math.mean(response_data['net_demand_at_shifted_peak_list'])
+               response_data['avg_co2_reduction_from_peak_shifting'] = (response_data['avg_net_demand_at_peak'] - response_data['avg_net_demand_at_shifted_peak']) / response_data['avg_net_demand_at_peak'] * 100.0
+               renewable_time_list = response_data['peak_renewable_time_list'].sort()
+               peak_time_list = response_data['peak_value_time_list'].sort()
+               response_data['median_renewable_time'] = renewable_time_list[Math.floor(renewable_time_list.length / 2)]
+               response_data['median_peak_time'] = peak_time_list[Math.floor(peak_time_list.length / 2)]
+
+               plot_summary_statistics(response_data, dateToString(fromDate).substring(0, 10), dateToString(toDate).substring(0, 10));
             });
         }
         else{
@@ -206,6 +265,9 @@ async function batchGetData(start_time, end_time, selected_value_type) {
      data_type_param = selected_value_type == 'Corrected Generation Data' ? '&corrected_values=true' : '&corrected_values=false'
      endpoint = 'get-merit-data'
   }
+  else if(selected_value_type == 'Summary Statistics'){
+     endpoint = 'get-merit-summary-statistics-batch'
+  }
   else{
      if(selected_value_type == 'Daily Moving Averages'){
         data_type_param = '&ma_type=daily'
@@ -222,11 +284,11 @@ async function batchGetData(start_time, end_time, selected_value_type) {
   batch_start = new Date(start_time)
   batch_end = new Date(start_time.getFullYear(), start_time.getMonth() + 1, 1);
   while(batch_end < end_time){
-     promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(batch_end) + data_type_param))
+     promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v3/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(batch_end) + data_type_param))
      batch_start = new Date(batch_end)
      batch_end = new Date(batch_end.getFullYear(), batch_end.getMonth() + 1, 1);
   }
-  promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(end_time) + data_type_param))
+  promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v3/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(end_time) + data_type_param))
   return_data = {}
   return await Promise.all(promises)
 }
