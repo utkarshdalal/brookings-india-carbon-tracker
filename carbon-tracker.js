@@ -162,6 +162,10 @@ var timeInput = new Vue({
                response_data['median_peak_time'] = peak_time_list[Math.floor(peak_time_list.length / 2)]
 
                plot_summary_statistics(response_data, dateToString(fromDate).substring(0, 10), dateToString(toDate).substring(0, 10));
+               if(timeout != null){
+                  clearTimeout(timeout);
+                  timeout = null;
+               }
             });
         }
         else{
@@ -225,12 +229,12 @@ var timeInput = new Vue({
                   evening_peak_values = data.evening_peak_values
 
                   plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
+                  if(timeout != null){
+                     clearTimeout(timeout);
+                     timeout = null;
+                  }
                }
             });
-        }
-        if(timeout != null){
-           clearTimeout(timeout);
-           timeout = null;
         }
         document.getElementById('loading_text').style.display = 'none'
      }
