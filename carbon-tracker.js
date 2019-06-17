@@ -2,6 +2,8 @@ var today = new Date();
 var tomorrow = new Date();
 tomorrow.setDate(today.getDate()+1);
 
+var timeout = null;
+
 var isMobile = false;
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
   isMobile = true;
@@ -160,6 +162,10 @@ var timeInput = new Vue({
                response_data['median_peak_time'] = peak_time_list[Math.floor(peak_time_list.length / 2)]
 
                plot_summary_statistics(response_data, dateToString(fromDate).substring(0, 10), dateToString(toDate).substring(0, 10));
+               if(timeout != null){
+                  clearTimeout(timeout);
+                  timeout = null;
+               }
             });
         }
         else{
@@ -223,6 +229,10 @@ var timeInput = new Vue({
                   evening_peak_values = data.evening_peak_values
 
                   plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2_per_mwh, total, net_demand, demand_met, peak_timestamps, peak_values, trough_timestamps, trough_values, morning_peak_timestamps, morning_peak_values, evening_peak_timestamps, evening_peak_values);
+                  if(timeout != null){
+                     clearTimeout(timeout);
+                     timeout = null;
+                  }
                }
             });
         }
@@ -258,7 +268,7 @@ var timeInput = new Vue({
 })
 
 async function batchGetData(start_time, end_time, selected_value_type) {
-  setTimeout(function(){ document.getElementById('loading_text').style.display = 'block' }, 1000 * 2 * 60)
+  timeout = setTimeout(function(){ document.getElementById('loading_text').style.display = 'block' }, 1000 * 2 * 60)
   data_type_param = ''
   endpoint = ''
   if(selected_value_type == 'Raw Generation Data' || selected_value_type == 'Corrected Generation Data'){
