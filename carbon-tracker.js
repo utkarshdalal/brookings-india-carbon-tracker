@@ -2,6 +2,8 @@ var today = new Date();
 var tomorrow = new Date();
 tomorrow.setDate(today.getDate()+1);
 
+var timeout = null;
+
 var isMobile = false;
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
   isMobile = true;
@@ -226,6 +228,10 @@ var timeInput = new Vue({
                }
             });
         }
+        if(timeout != null){
+           clearTimeout(timeout);
+           timeout = null;
+        }
         document.getElementById('loading_text').style.display = 'none'
      }
      else{
@@ -258,7 +264,7 @@ var timeInput = new Vue({
 })
 
 async function batchGetData(start_time, end_time, selected_value_type) {
-  setTimeout(function(){ document.getElementById('loading_text').style.display = 'block' }, 1000 * 2 * 60)
+  timeout = setTimeout(function(){ document.getElementById('loading_text').style.display = 'block' }, 1000 * 2 * 60)
   data_type_param = ''
   endpoint = ''
   if(selected_value_type == 'Raw Generation Data' || selected_value_type == 'Corrected Generation Data'){
