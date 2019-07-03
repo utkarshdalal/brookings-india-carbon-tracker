@@ -92,8 +92,8 @@ var timeInput = new Vue({
         fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), 1);
      }
      else{
-        toDate = new Date(this.end_date.getTime());
-        fromDate = new Date(this.start_date.getTime());
+        toDate = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDay());
+        fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDay());
      }
      if(this.validate_input(fromDate, toDate)){
         if(this.is_summary_statistics()){
