@@ -168,6 +168,32 @@ var timeInput = new Vue({
                }
             });
         }
+        else if(this.is_ldc()){
+            response_data = {}
+            batchGetData(fromDate, toDate, this.selected_value_type).then(response => {
+               response_data = JSON.parse(response[0].data)
+               for(i=1; i < response.length; i++){
+                  block = JSON.parse(response[i].data)
+                  keys = Object.keys(block.timeseries_values)
+                  for(j=0; j < keys.length; j++){
+                     key = keys[j]
+                     response_data.timeseries_values[key] = response_data.timeseries_values[key].concat(block.timeseries_values[key])
+                  }
+                  keys = Object.keys(block)
+                  for(j=0; j < keys.length; j++){
+                     key = keys[j]
+                     if(response_data[key].constructor === Array){
+                        response_data[key] = response_data[key].concat(block[key])
+                     }
+                  }
+               }
+               data = response_data
+               demand_met = data.timeseries_values.demand_met
+
+               sorted_demand_met = demand_met.sort().reverse()
+               plot_load_duration_curve(sorted_demand_met)
+            });
+        }
         else{
             response_data = {}
             batchGetData(fromDate, toDate, this.selected_value_type).then(response => {
@@ -205,6 +231,10 @@ var timeInput = new Vue({
                   nuclear_ma = data.timeseries_values.nuclear_generation_ma
                   demand_met_ma = data.timeseries_values.demand_met_ma
                   plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma, thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma)
+               }
+               else if(this.is_ldc()){
+                  sorted_demand_met = demand_met.sort().reverse()
+                  plot_load_duration_curve(sorted_demand_met)
                }
                else{
                   timeRange.start_time = this.start_time
@@ -255,6 +285,12 @@ var timeInput = new Vue({
      }
      return false;
    },
+   is_ldc: function() {
+     if(this.selected_value_type == 'Load Duration Curve'){
+        return true;
+     }
+     return false;
+   },
    is_summary_statistics: function() {
      if(this.selected_value_type == 'Summary Statistics'){
         return true;
@@ -277,6 +313,9 @@ async function batchGetData(start_time, end_time, selected_value_type) {
   }
   else if(selected_value_type == 'Summary Statistics'){
      endpoint = 'get-merit-summary-statistics-batch'
+  }
+  else if(selected_value_type == 'Load Duration Curve'){
+     endpoint = 'get-merit-demand-met'
   }
   else{
      if(selected_value_type == 'Daily Moving Averages'){

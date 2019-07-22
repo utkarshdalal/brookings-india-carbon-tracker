@@ -74,6 +74,7 @@
                   <li>Raw Generation Data</li>
                   <li>Moving Averages</li>
                   <li>Summary Statistics and Analysis</li>
+                  <li>Load Duration Curve</li>
                </ul>
                <p>The first two options, at a 5 minute resolution, also show CO2 from electricity generation,
                   both per kWh as well as total tons per 5 minute period.
@@ -210,6 +211,8 @@
             <option>Weekly Moving Averages</option>
             <option>Monthly Moving Averages</option>
             <option>Summary Statistics</option>
+            <option>Load Duration Curve</option>
+
          </select>
          <button v-on:click="submit">Submit</button>
       </div>
@@ -236,6 +239,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js"></script>
       <script src="plot_merit_data.js"></script>
       <script src="plot_moving_averages.js"></script>
+      <script src="plot_load_duration_curve.js"></script>
       <script src="plot_summary_statistics.js"></script>
       <script src="carbon-tracker.js"></script>
       <script src="faq_modal.js"></script>
