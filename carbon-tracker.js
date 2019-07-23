@@ -244,10 +244,6 @@ var timeInput = new Vue({
                   demand_met_ma = data.timeseries_values.demand_met_ma
                   plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclear, demand_met, timestamps_ma, thermal_ma, gas_ma, hydro_ma, renewable_ma, nuclear_ma, demand_met_ma)
                }
-               else if(this.is_ldc()){
-                  sorted_demand_met = demand_met.sort().reverse()
-                  plot_load_duration_curve(sorted_demand_met)
-               }
                else{
                   timeRange.start_time = this.start_time
                   timeRange.end_time = this.end_time
