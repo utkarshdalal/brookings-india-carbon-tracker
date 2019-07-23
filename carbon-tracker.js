@@ -92,8 +92,8 @@ var timeInput = new Vue({
         fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), 1);
      }
      else{
-        toDate = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDay());
-        fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDay());
+        toDate = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDate());
+        fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDate());
      }
      if(this.validate_input(fromDate, toDate)){
         if(this.is_summary_statistics()){
@@ -189,9 +189,21 @@ var timeInput = new Vue({
                }
                data = response_data
                demand_met = data.timeseries_values.demand_met
+               total_generation = data.timeseries_values.total_generation
+
+               beginning_of_from_date = new Date(fromDate.getTime())
+               beginning_of_from_date.setHours(0, 0, 0, 0)
+
+               beginning_of_to_date = new Date(toDate.getTime())
+               beginning_of_to_date.setHours(0, 0, 0, 0)
+
+               current_time = new Date()
+
+               hours_between_dates = (Math.min(current_time, beginning_of_to_date) - beginning_of_from_date) / (1000 * 60 * 60);
 
                sorted_demand_met = demand_met.sort().reverse()
-               plot_load_duration_curve(sorted_demand_met)
+               sorted_total_generation = total_generation.sort().reverse()
+               plot_load_duration_curve(sorted_demand_met, sorted_total_generation, hours_between_dates)
             });
         }
         else{
@@ -286,7 +298,7 @@ var timeInput = new Vue({
      return false;
    },
    is_ldc: function() {
-     if(this.selected_value_type == 'Load Duration Curve'){
+     if(this.selected_value_type == 'Load Duration Curves'){
         return true;
      }
      return false;
@@ -314,7 +326,7 @@ async function batchGetData(start_time, end_time, selected_value_type) {
   else if(selected_value_type == 'Summary Statistics'){
      endpoint = 'get-merit-summary-statistics-batch'
   }
-  else if(selected_value_type == 'Load Duration Curve'){
+  else if(selected_value_type == 'Load Duration Curves'){
      endpoint = 'get-merit-demand-met'
   }
   else{
