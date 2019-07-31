@@ -15,7 +15,7 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, ho
       x++
    }
    demand_met_trace = {
-      name:'Net Demand Load Duration Curve',
+      name:'Demand Met Load Duration Curve',
       x:hours,
       y:demand_met_percentiles,
       hoverinfo:'x+y',
