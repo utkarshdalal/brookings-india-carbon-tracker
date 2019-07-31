@@ -69,11 +69,12 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
          }
       },
       visible: 'legendonly',
-      mode:'bar',
+      mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 0.5,
                color:'black'},
+      stackgroup:'one'
    };
    gas_generation_trace = {
       name:'Gas Generation at Demand Met',
@@ -86,11 +87,12 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
          }
       },
       visible: 'legendonly',
-      mode:'bar',
+      mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 0.5,
                color:'blue'},
+      stackgroup:'one'
    };
    nuclear_generation_trace = {
       name:'Nuclear Generation at Demand Met',
@@ -103,11 +105,12 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
          }
       },
       visible: 'legendonly',
-      mode:'bar',
+      mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 0.5,
                color:'red'},
+      stackgroup:'one'
    };
    hydro_generation_trace = {
       name:'Hydro Generation at Demand Met',
@@ -120,11 +123,12 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
          }
       },
       visible: 'legendonly',
-      mode:'bar',
+      mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 0.5,
                color:'cyan'},
+      stackgroup:'one'
    };
    renewable_generation_trace = {
       name:'Renewable Generation at Demand Met',
@@ -137,14 +141,14 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
          }
       },
       visible: 'legendonly',
-      mode:'bar',
+      mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 0.5,
                color:'orange'},
+      stackgroup:'one'
    };
-   var traces = [demand_met_trace, total_generation_trace, thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace]
-//   var traces = [demand_met_trace, total_generation_trace, demand_met_trace2, total_generation_trace2]
+   var traces = [thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace, total_generation_trace, demand_met_trace]
 
    yaxis1_layout = {
       'title': {
