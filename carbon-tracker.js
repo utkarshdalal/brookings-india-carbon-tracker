@@ -188,8 +188,39 @@ var timeInput = new Vue({
                   }
                }
                data = response_data
+               correlation_array = []
+
                demand_met = data.timeseries_values.demand_met
                total_generation = data.timeseries_values.total_generation
+               thermal_generation = data.timeseries_values.thermal_generation
+               gas_generation = data.timeseries_values.gas_generation
+               nuclear_generation = data.timeseries_values.nuclear_generation
+               hydro_generation = data.timeseries_values.hydro_generation
+               renewable_generation = data.timeseries_values.renewable_generation
+
+               sorted_demand_met = []
+               sorted_thermal_generation = []
+               sorted_gas_generation = []
+               sorted_nuclear_generation = []
+               sorted_hydro_generation = []
+               sorted_renewable_generation = []
+
+               for (i = 0; i < demand_met.length; i++) {
+                   correlation_array.push([demand_met[i], thermal_generation[i], gas_generation[i], nuclear_generation[i], hydro_generation[i], renewable_generation[i]])
+               }
+
+               correlation_array.sort(function compare(kv1, kv2) {
+                   return kv2[0] - kv1[0]
+               })
+
+               for (i of correlation_array){
+                   sorted_demand_met.push(i[0])
+                   sorted_thermal_generation.push(i[1])
+                   sorted_gas_generation.push(i[2])
+                   sorted_nuclear_generation.push(i[3])
+                   sorted_hydro_generation.push(i[4])
+                   sorted_renewable_generation.push(i[5])
+               }
 
                beginning_of_from_date = new Date(fromDate.getTime())
                beginning_of_from_date.setHours(0, 0, 0, 0)
@@ -201,9 +232,8 @@ var timeInput = new Vue({
 
                hours_between_dates = (Math.min(current_time, beginning_of_to_date) - beginning_of_from_date) / (1000 * 60 * 60);
 
-               sorted_demand_met = demand_met.sort().reverse()
                sorted_total_generation = total_generation.sort().reverse()
-               plot_load_duration_curve(sorted_demand_met, sorted_total_generation, hours_between_dates)
+               plot_load_duration_curve(sorted_demand_met, sorted_total_generation, sorted_thermal_generation, sorted_gas_generation, sorted_nuclear_generation, sorted_hydro_generation, sorted_renewable_generation, hours_between_dates)
             });
         }
         else{
@@ -341,11 +371,11 @@ async function batchGetData(start_time, end_time, selected_value_type) {
   batch_start = new Date(start_time)
   batch_end = new Date(start_time.getFullYear(), start_time.getMonth() + 1, 1);
   while(batch_end < end_time){
-     promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v3/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(batch_end) + data_type_param))
+     promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v4/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(batch_end) + data_type_param))
      batch_start = new Date(batch_end)
      batch_end = new Date(batch_end.getFullYear(), batch_end.getMonth() + 1, 1);
   }
-  promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v3/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(end_time) + data_type_param))
+  promises.push(axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v4/' + endpoint + '?start_time=' + dateToString(batch_start) + '&end_time=' + dateToString(end_time) + data_type_param))
   return_data = {}
   return await Promise.all(promises)
 }
@@ -357,5 +387,5 @@ async function getData(start_time, end_time, selected_value_type) {
     if(selected_value_type == 'Summary Statistics'){
         endpoint = 'get-merit-summary-statistics'
     }
-    return await axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v2/' + endpoint + '?start_time=' + start_time + '&end_time=' + end_time);
+    return await axios.get('https://32u36xakx6.execute-api.us-east-2.amazonaws.com/v4/' + endpoint + '?start_time=' + start_time + '&end_time=' + end_time);
 }

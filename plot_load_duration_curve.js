@@ -1,8 +1,13 @@
-function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, hours_between_dates) {
+function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, sorted_thermal_generation, sorted_gas_generation, sorted_nuclear_generation, sorted_hydro_generation, sorted_renewable_generation, hours_between_dates) {
    var plotDiv = document.getElementById('plot');
    len = sorted_demand_met.length
    percentiles = []
    hours = []
+   thermal_generation_percentiles = []
+   gas_generation_percentiles = []
+   nuclear_generation_percentiles = []
+   hydro_generation_percentiles = []
+   renewable_generation_percentiles = []
    demand_met_percentiles = []
    total_generation_percentiles = []
    x = 1
@@ -10,8 +15,14 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, ho
       pct = x * 0.0001
       hours.push(pct * hours_between_dates)
       percentiles.push(pct)
-      demand_met_percentiles.push(sorted_demand_met[Math.floor(len*pct) - 1])
-      total_generation_percentiles.push(sorted_total_generation[Math.floor(len*pct) - 1])
+      el = Math.floor(len*pct) - 1
+      demand_met_percentiles.push(sorted_demand_met[el])
+      thermal_generation_percentiles.push(sorted_thermal_generation[el])
+      gas_generation_percentiles.push(sorted_gas_generation[el])
+      nuclear_generation_percentiles.push(sorted_nuclear_generation[el])
+      hydro_generation_percentiles.push(sorted_hydro_generation[el])
+      renewable_generation_percentiles.push(sorted_renewable_generation[el])
+      total_generation_percentiles.push(sorted_total_generation[el])
       x++
    }
    demand_met_trace = {
@@ -24,12 +35,11 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, ho
             family: 'Franklin Gothic Book'
          }
       },
-//      showlegend: false,
       mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 2,
-               color:'black'},
+               color:'brown'},
    };
    total_generation_trace = {
       name:'Total Generation Load Duration Curve',
@@ -41,34 +51,17 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, ho
             family: 'Franklin Gothic Book'
          }
       },
-//      showlegend: false,
       visible: 'legendonly',
       mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
       line: {width: 2,
-               color:'brown'},
+               color:'gray'},
    };
-      demand_met_trace2 = {
-      name:'Net Demand Load Duration Curve',
+   thermal_generation_trace = {
+      name:'Thermal Generation at Demand Met',
       x:hours,
-      y:demand_met_percentiles,
-      hoverinfo:'x+y',
-      hoverlabel: {
-         font: {
-            family: 'Franklin Gothic Book'
-         }
-      },
-      mode:'lines',
-      xaxis: 'x2',
-      yaxis: 'y1',
-      line: {width: 2,
-               color:'black'},
-   };
-   total_generation_trace2 = {
-      name:'Total Generation Load Duration Curve',
-      x:hours,
-      y:total_generation_percentiles,
+      y:thermal_generation_percentiles,
       hoverinfo:'x+y',
       hoverlabel: {
          font: {
@@ -76,13 +69,81 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, ho
          }
       },
       visible: 'legendonly',
-      mode:'lines',
-      xaxis: 'x2',
+      mode:'bar',
+      xaxis: 'x1',
       yaxis: 'y1',
-      line: {width: 2,
-               color:'brown'},
+      line: {width: 0.5,
+               color:'black'},
    };
-   var traces = [demand_met_trace, total_generation_trace]
+   gas_generation_trace = {
+      name:'Gas Generation at Demand Met',
+      x:hours,
+      y:gas_generation_percentiles,
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      visible: 'legendonly',
+      mode:'bar',
+      xaxis: 'x1',
+      yaxis: 'y1',
+      line: {width: 0.5,
+               color:'blue'},
+   };
+   nuclear_generation_trace = {
+      name:'Nuclear Generation at Demand Met',
+      x:hours,
+      y:nuclear_generation_percentiles,
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      visible: 'legendonly',
+      mode:'bar',
+      xaxis: 'x1',
+      yaxis: 'y1',
+      line: {width: 0.5,
+               color:'red'},
+   };
+   hydro_generation_trace = {
+      name:'Hydro Generation at Demand Met',
+      x:hours,
+      y:hydro_generation_percentiles,
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      visible: 'legendonly',
+      mode:'bar',
+      xaxis: 'x1',
+      yaxis: 'y1',
+      line: {width: 0.5,
+               color:'cyan'},
+   };
+   renewable_generation_trace = {
+      name:'Renewable Generation at Demand Met',
+      x:hours,
+      y:renewable_generation_percentiles,
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      visible: 'legendonly',
+      mode:'bar',
+      xaxis: 'x1',
+      yaxis: 'y1',
+      line: {width: 0.5,
+               color:'orange'},
+   };
+   var traces = [demand_met_trace, total_generation_trace, thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace]
 //   var traces = [demand_met_trace, total_generation_trace, demand_met_trace2, total_generation_trace2]
 
    yaxis1_layout = {
