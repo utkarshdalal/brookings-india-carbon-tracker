@@ -35,6 +35,7 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
             family: 'Franklin Gothic Book'
          }
       },
+      legendgroup: 'demand_met',
       mode:'lines',
       xaxis: 'x1',
       yaxis: 'y1',
@@ -52,8 +53,46 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
          }
       },
       visible: 'legendonly',
+      legendgroup: 'total_generation',
       mode:'lines',
       xaxis: 'x1',
+      yaxis: 'y1',
+      line: {width: 2,
+               color:'gray'},
+   };
+   demand_met_trace2 = {
+      name:'Demand Met Load Duration Curve',
+      x:percentiles,
+      y:demand_met_percentiles,
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      showlegend: false,
+      legendgroup: 'demand_met',
+      mode:'lines',
+      xaxis: 'x2',
+      yaxis: 'y1',
+      line: {width: 2,
+               color:'brown'},
+   };
+   total_generation_trace2 = {
+      name:'Total Generation Load Duration Curve',
+      x:percentiles,
+      y:total_generation_percentiles,
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      showlegend: false,
+      legendgroup: 'total_generation',
+      visible: 'legendonly',
+      mode:'lines',
+      xaxis: 'x2',
       yaxis: 'y1',
       line: {width: 2,
                color:'gray'},
@@ -148,7 +187,7 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
                color:'orange'},
       stackgroup:'one'
    };
-   var traces = [thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace, total_generation_trace, demand_met_trace]
+   var traces = [total_generation_trace, demand_met_trace, total_generation_trace2, demand_met_trace2, thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace]
 
    yaxis1_layout = {
       'title': {
@@ -184,19 +223,21 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
    }
    xaxis2_layout = {
       'domain': [0, 1],
+      'tickformat': ',.2%',
       'title': {
          'font': {
             'family': 'Franklin Gothic Medium',
             'size': 15
          },
-         'text': '<br> Hours'
+         'text': '<br>% of Time'
       },
-      'overlaying': 'y',
       'side': 'top',
       'tickfont': {
          'family': 'Franklin Gothic Book',
          'size': 15
       },
+      'showgrid': false,
+      'overlaying': 'x',
       'gridwidth': 1,
       'gridcolor': '#cccccc',
       'position': 1
@@ -217,7 +258,7 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
             pad: {'l': 30}
          },
          'xaxis': xaxis1_layout,
-//         'xaxis2': xaxis2_layout,
+         'xaxis2': xaxis2_layout,
          'yaxis': yaxis1_layout,
          'legend': {
             font: {
