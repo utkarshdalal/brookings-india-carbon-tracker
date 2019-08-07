@@ -82,9 +82,9 @@ var timeInput = new Vue({
      if(this.selected_date_type == 'Week of'){
         first_day_of_week = this.start_date.getDate() - this.start_date.getDay()
         last_day_of_week = first_day_of_week + 7
-        toDate = new Date();
+        toDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDate());
         toDate = new Date(toDate.setDate(last_day_of_week));
-        fromDate = new Date();
+        fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDate());
         fromDate = new Date(fromDate.setDate(first_day_of_week));
      }
      else if(this.selected_date_type == 'Month of'){
