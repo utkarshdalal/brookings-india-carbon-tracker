@@ -10,6 +10,9 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
    renewable_generation_percentiles = []
    demand_met_percentiles = []
    total_generation_percentiles = []
+   distance_from_max_demand = []
+   max_demand = sorted_demand_met[0]
+   max_demand_array = []
    x = 1
    while(x <= 10000){
       pct = x * 0.0001
@@ -23,8 +26,29 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
       hydro_generation_percentiles.push(sorted_hydro_generation[el])
       renewable_generation_percentiles.push(sorted_renewable_generation[el])
       total_generation_percentiles.push(sorted_total_generation[el])
+      max_demand_array.push(max_demand)
+      distance_from_max_demand.push(max_demand - sorted_demand_met[el])
       x++
    }
+   distance_from_max_demand_trace = {
+      name:'Difference from Period Max Demand',
+      x:hours,
+      y:max_demand_array,
+      hovertemplate: '<br>%{text} MW Below Max Demand',
+      hoverinfo:'x+y',
+      hoverlabel: {
+         font: {
+            family: 'Franklin Gothic Book'
+         }
+      },
+      text: distance_from_max_demand,
+      legendgroup: 'demand_met',
+      mode:'lines',
+      xaxis: 'x1',
+      yaxis: 'y1',
+      line: {width: 1,
+               color:'black'},
+   };
    demand_met_trace = {
       name:'Demand Met Load Duration Curve',
       x:hours,
@@ -41,24 +65,6 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
       yaxis: 'y1',
       line: {width: 2,
                color:'brown'},
-   };
-   total_generation_trace = {
-      name:'Total Generation Load Duration Curve',
-      x:hours,
-      y:total_generation_percentiles,
-      hoverinfo:'x+y',
-      hoverlabel: {
-         font: {
-            family: 'Franklin Gothic Book'
-         }
-      },
-      visible: 'legendonly',
-      legendgroup: 'total_generation',
-      mode:'lines',
-      xaxis: 'x1',
-      yaxis: 'y1',
-      line: {width: 2,
-               color:'gray'},
    };
    demand_met_trace2 = {
       name:'Demand Met Load Duration Curve',
@@ -77,25 +83,6 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
       yaxis: 'y1',
       line: {width: 2,
                color:'brown'},
-   };
-   total_generation_trace2 = {
-      name:'Total Generation Load Duration Curve',
-      x:percentiles,
-      y:total_generation_percentiles,
-      hoverinfo:'x+y',
-      hoverlabel: {
-         font: {
-            family: 'Franklin Gothic Book'
-         }
-      },
-      showlegend: false,
-      legendgroup: 'total_generation',
-      visible: 'legendonly',
-      mode:'lines',
-      xaxis: 'x2',
-      yaxis: 'y1',
-      line: {width: 2,
-               color:'gray'},
    };
    thermal_generation_trace = {
       name:'Thermal Generation at Demand Met',
@@ -187,7 +174,7 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
                color:'orange'},
       stackgroup:'one'
    };
-   var traces = [total_generation_trace, demand_met_trace, total_generation_trace2, demand_met_trace2, thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace]
+   var traces = [demand_met_trace, demand_met_trace2, distance_from_max_demand_trace, thermal_generation_trace, gas_generation_trace, nuclear_generation_trace, hydro_generation_trace, renewable_generation_trace]
 
    yaxis1_layout = {
       'title': {
