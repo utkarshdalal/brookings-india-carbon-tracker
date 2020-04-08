@@ -1,6 +1,5 @@
 var today = new Date();
 var tomorrow = new Date();
-tomorrow.setDate(today.getDate()+1);
 
 var timeout = null;
 
@@ -92,7 +91,7 @@ var timeInput = new Vue({
         fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), 1);
      }
      else{
-        toDate = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDate());
+        toDate = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDate() + 1);
         fromDate = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDate());
      }
      if(this.validate_input(fromDate, toDate)){
@@ -312,7 +311,7 @@ var timeInput = new Vue({
      }
    },
    validate_input: function (start_time, end_time) {
-     if(start_time < end_time){
+     if(start_time <= end_time){
         return true
      }
      return false
