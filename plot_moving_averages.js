@@ -247,7 +247,7 @@ function plot_moving_averages(timestamps, thermal, gas, hydro, renewable, nuclea
       traces, 
       {
          'title': {
-            text: 'Brookings India Electricity & Carbon Tracker',
+            text: 'Electricity & Carbon Tracker',
             font: {
                family: 'Franklin Gothic Demi',
                size: 20

@@ -105,7 +105,7 @@ function plot_summary_statistics(data, fromDateString, toDateString){
    }]
 
    var layout = {'title': {
-                    text: 'Brookings India Electricity & Carbon Tracker',
+                    text: 'Electricity & Carbon Tracker',
                     font: {
                        family: 'Franklin Gothic Demi',
                        size: 20
