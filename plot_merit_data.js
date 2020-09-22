@@ -309,7 +309,7 @@ function plot_data(timestamps, thermal, gas, hydro, renewable, nuclear, co2, co2
       traces, 
       {
          'title': {
-            text: 'Electricity & Carbon Tracker',
+            text: 'CSEP Electricity & Carbon Tracker',
             font: {
                family: 'Franklin Gothic Demi',
                size: 20

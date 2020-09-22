@@ -234,7 +234,7 @@ function plot_load_duration_curve(sorted_demand_met, sorted_total_generation, so
       traces,
       {
          'title': {
-            text: 'Electricity & Carbon Tracker',
+            text: 'CSEP Electricity & Carbon Tracker',
             font: {
                family: 'Franklin Gothic Demi',
                size: 20
